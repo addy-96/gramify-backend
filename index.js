@@ -8,7 +8,7 @@ app.use((req, res, next) => {
 });
 
 app.get("/", (req, res) => {
-    res.send(JSON.{});
+    res.send(J);
 });
 
 app.listen(8000, () => {
