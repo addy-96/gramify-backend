@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import User from "../models/user";
+import user from "../models/user.js";
 
 const generateToken = (user) => {
     const accessToken = jwt.sign(
@@ -16,7 +16,7 @@ const generateToken = (user) => {
     )
 };
 
-exports.register = async (req,res) => {
+export const register = async (req,res) => {
     try{
         const {email,password} = req.body;
         const existing = await User.find({email});
@@ -32,7 +32,7 @@ exports.register = async (req,res) => {
     }
 };
 
-exports.login = async (req,res) => {
+export const login = async (req,res) => {
     try{
         const {email, password} = req.body;
         const user = await User.findOne({email});
@@ -52,7 +52,7 @@ exports.login = async (req,res) => {
     }
 };
 
-exports.refreshToken = async (req,res) => {
+export const refresh = async (req,res) => {
     try{
         const authHeader = req.get('Authorization');
         

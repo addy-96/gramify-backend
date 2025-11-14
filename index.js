@@ -1,16 +1,23 @@
 import express from 'express';
+import dotenv from 'dotenv';
+import {connectDb} from './config/db.js';
+import authRouter from './routes/auth_routes.js' 
+
+dotenv.config();
 
 const app = express();
+app.use(express.json());
 
-app.use((req, res, next) => {
-    console.log('first middleware ran');
-    next(); 
+connectDb();
+
+app.use("/api/auth",authRouter);
+
+app.get("/",(req,res)=>{
+res.send("Server running fine.")
 });
 
-app.get("/", (req, res) => {
-    res.send(J);
-});
-
-app.listen(8000, () => {
+//SERVER START
+const PORT = process.env.PORT ||  8000;
+app.listen(PORT, () => {
     console.log('\nServer running at http://localhost:8000\n');
 });
