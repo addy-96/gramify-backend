@@ -12,7 +12,19 @@ const userSchema = new mongoose.Schema({
     },
     refreshToken: {
         type: String
+    },
+    username: {
+        type: String,
+    },
+    fullname: {
+        type: String,
+    },
+    dob: {
+        type: Date,
+    },
+    phone: {
+        type: String,
     }
-});
+},{timestamps: true});
 
 export default mongoose.model("User", userSchema);

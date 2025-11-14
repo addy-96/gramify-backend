@@ -1,6 +1,8 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import user from "../models/user.js";
+import User from "../models/user.js";
+
+const bycryptRounds = 10;
 
 const generateToken = (user) => {
     const accessToken = jwt.sign(
@@ -14,15 +16,17 @@ const generateToken = (user) => {
         process.env.REFRESH_TOKEN_SECRET,
         {expiresIn: process.env.REFRESH_TOKEN_EXPIRY}
     )
+
+    return {accessToken, refreshToken};
 };
 
 export const register = async (req,res) => {
     try{
         const {email,password} = req.body;
-        const existing = await User.find({email});
+        const existing = await User.findOne({email});
         if(existing) return res.status(400).json({message: "User already exists"});
 
-        const hashedPassword = await bcrypt.hash(password,20);
+        const hashedPassword = await bcrypt.hash(password,bycryptRounds);
         const newUser = await User.create({email: email, password: hashedPassword});
 
         res.status(201).json({message: "User registered",user: newUser.username});
@@ -35,11 +39,15 @@ export const register = async (req,res) => {
 export const login = async (req,res) => {
     try{
         const {email, password} = req.body;
+
         const user = await User.findOne({email});
         if(!user) return res.status(400).json({message: "User not found"});
+
         const isMatch = await bcrypt.compare(password, user.password);
         if(!isMatch)  return res.status(400).json({message: "Invalid credentials"});
+
         const {accessToken, refreshToken} = generateToken(user);
+        
         user.refreshToken = refreshToken;
         await user.save();
         return res.status(200).json({
@@ -75,7 +83,7 @@ export const refresh = async (req,res) => {
                 { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
     );
     res.json({ accessToken });
- });
+    });
     }catch(err){
         console.error(err);
         res.status(500).json({ message: "Server error" });
