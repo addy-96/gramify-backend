@@ -33,6 +33,7 @@ export const editUserProfile = async (req,res)=>{
         },{
             new:true
         });
+
         if(!updatedUser) return res.status(404).json("User not found");
 
         return res.status(201).json(updatedUser);
@@ -42,3 +43,4 @@ export const editUserProfile = async (req,res)=>{
         res.status(500).json({ message: "Server error" });
     }
 }
+
