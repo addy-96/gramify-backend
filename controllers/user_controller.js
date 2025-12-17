@@ -9,7 +9,7 @@ export const getUserProfile = async (req,res) => {
       const userDetails = await user.findById({"_id":id});
       if(!userDetails) return res.status(404).json("User not found");
 
-      return res.status(200).json({userDetails});
+      return res.status(200).json({message: "User details fetch success", userDetails: userDetails});
 
      }catch(err){
         console.error(err);
@@ -22,14 +22,14 @@ export const editUserProfile = async (req,res)=>{
         const {id, username,fullname,phone,dob} = req.body;
         
         if(!id || !username || !fullname || !phone || !dob) {
-            return res.status(400).json("Invalid request");
+            return res.status(400).json("Invalid request, all fileds not provided");
         }
     
         const updatedUser =  await user.findByIdAndUpdate(id,{
-            fullname:fullname,
             username:username,
             phone:phone,
-            dob:dob
+            dob:dob,
+            "profile.fullanme": fullname,
         },{
             new:true
         });
