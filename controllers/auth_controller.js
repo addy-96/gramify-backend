@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/user.js";
+import AppErrors from "../core/error.js";
 
 const bycryptRounds = 10;
 
@@ -31,8 +32,7 @@ export const register = async (req,res) => {
 
         res.status(201).json({message: "User registered",user: newUser.username});
     }catch (err){
-        console.error(err);
-        res.status(500).json({message:"Server error"});
+        AppErrors.handleServerError(err,res);
     }
 };
 
@@ -55,8 +55,7 @@ export const login = async (req,res) => {
             refreshToken: refreshToken
         });
     }catch(err){
-        console.error(err);
-        res.status(500).json({ message: "Server error" });
+        AppErrors.handleServerError(err,res);
     }
 };
 
@@ -85,8 +84,7 @@ export const refresh = async (req,res) => {
     res.json({ accessToken });
     });
     }catch(err){
-        console.error(err);
-        res.status(500).json({ message: "Server error" });
+        AppErrors.handleServerError(err,res);
     }
 }
 
