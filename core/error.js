@@ -5,8 +5,8 @@ export default class AppErrors{
     }
 
     static handleClientError(statusCode,message,res){
-        const message = message ?? "Client Error";
-        const statusCode = statusCode ?? 400;
+        message = message ?? "Client Error";
+        statusCode = statusCode ?? 400;
         res.status(statusCode).json({message: message});
     }
 }

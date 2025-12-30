@@ -16,8 +16,8 @@ app.use((req,res,next)=>{
     next()
 });
 
-app.use("/api/auth", authRouter);
-app.use("/api/user", verifyJWT, userRouter);
+app.use("/auth", authRouter);
+app.use("/user", verifyJWT, userRouter);
 
 app.get("/",(req,res)=>{
 res.send("Server running fine.");
