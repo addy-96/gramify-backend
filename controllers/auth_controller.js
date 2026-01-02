@@ -94,5 +94,3 @@ export const refresh = async (req,res) => {
         AppErrors.handleServerError(err,res);
     }
 }
-
-// TODO: To write logout

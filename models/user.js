@@ -10,6 +10,8 @@ const userSchema = new mongoose.Schema({
  profile:{
     fullname: {type:String},
     bio: {type:String},
+    dob: {type: String},
+    gender: {type: String},
     avatarUrl: {type: String},
     location: {type:String}
  },
