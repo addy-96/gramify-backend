@@ -12,11 +12,11 @@ export const getUserProfile = async (req,res) => {
       const userDetails = await user.findById({"_id":id});
       if(!userDetails) return res.status(404).json("User not found");
 
-      return res.status(200).json({message: "User details fetch success", userDetails: userDetails});
+      return res.status(200).json({msg: "User details fetch success", userDetails: userDetails});
 
      }catch(err){
         console.error(err);
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ msg: "Server error" });
      } 
 }
 
@@ -99,7 +99,7 @@ export const followUser = async (req, res) => {
       ),
     ]);
 
-    return res.status(200).json({ message: "Follow success" });
+    return res.status(200).json({ msg: "Follow success" });
 
   } catch (err) {
     AppErrors.handleServerError(err, res);

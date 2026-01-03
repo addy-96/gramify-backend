@@ -6,7 +6,7 @@ import AppErrors from "../core/error.js";
 import dotenv from "dotenv";
 dotenv.config();
 
-const bycryptRounds = 10;
+const bcryptRounds = 10;
 
 const generateToken = (user) => {
     const accessToken = jwt.sign(
@@ -25,21 +25,32 @@ const generateToken = (user) => {
 };
 
 export const register = async (req,res) => {
-    try{
-        const {email,password,username} = req.body;
-        const existing = await User.findOne({email});
-        if(existing) return res.status(400).json({message: "User already exists"});
+    try {
+        const { email, password, username } = req.body;
+        console.log(email, password, username); 
+        const existing = await User.findOne({ email });
+        if (existing) return res.status(400).json({ msg: "User already exists" });
+        const bcryptRounds = 10; 
+        const hashedPassword = await bcrypt.hash(password, bcryptRounds); 
+        const newUser = await User.create({
+            email,
+            password: hashedPassword,
+            username
+        });
+        const { accessToken, refreshToken } = generateToken({ id: newUser._id, email: newUser.email });
+        res.status(201).json({
+            msg: "User registered",
+            id: newUser._id,
+            email: newUser.email,
+            username: username,
+            followers: newUser.followers.length,
+            following: newUser.following.length,
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+        });
 
-        const hashedPassword = await bcrypt.hash(password,bycryptRounds);
-        const newUser = await User.create({email: email, password: hashedPassword, username:username}); 
-
-        const {accessToken, refreshToken} = generateToken(newUser);
-
-        await User.findByIdAndUpdate(newUser._id, {accessToken: accessToken, refreshToken: refreshToken});
-
-        res.status(201).json({message: "User registered",accessToken: accessToken, refreshToken: refreshToken});
-    }catch (err){
-        AppErrors.handleServerError(err,res);
+    } catch (err) {
+        AppErrors.handleServerError(err, res);
     }
 };
 
@@ -48,10 +59,10 @@ export const login = async (req,res) => {
         const {email, password} = req.body;
         
         const user = await User.findOne({email});
-        if(!user) return res.status(400).json({message: "User not found"});
+        if(!user) return res.status(400).json({msg: "User not found"});
 
         const isMatch = await bcrypt.compare(password, user.password);
-        if(!isMatch)  return res.status(400).json({message: "Invalid credentials"});
+        if(!isMatch)  return res.status(400).json({msg: "Invalid credentials"});
 
         const {accessToken, refreshToken} = generateToken(user);
         
@@ -71,17 +82,17 @@ export const refresh = async (req,res) => {
         const authHeader = req.get('Authorization');
         
         if(!authHeader || !authHeader.startsWith('Bearer '))
-            return res.status(401).json({message: "No refresh token provided"});
+            return res.status(401).json({msg: "No refresh token provided"});
 
         const refreshToken = authHeader.split(' ')[1];
         
         const user = await User.findOne({refreshToken: refreshToken});
 
-        if(!user) return res.status(403).json({message: "Invalid refresh token, try loggin in."});
+        if(!user) return res.status(403).json({msg: "Invalid refresh token, try loggin in."});
 
          jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
          if (err || user._id.toString() !== decoded.id)
-                return res.status(403).json({ message: "Token verification failed" });
+                return res.status(403).json({ msg: "Token verification failed" });
 
             const accessToken = jwt.sign(
                 { id: user._id, username: user.username },
