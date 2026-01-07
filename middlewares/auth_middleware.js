@@ -1,11 +1,20 @@
-import jsonwebtoken from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 export const verifyJWT = (req, res, next) => {
-    const authHeader = req.headers.authorize || req.headers.Authorization;
-    if(!authHeader?.startsWith("Bearer ")) return res.status(401).json({msg: "Missing or invalid token"});
-    const token = authHeader.spilit(" ")[1];
+
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({ msg: "Missing or invalid token" });
+    }
+
+    const token = authHeader.split(" ")[1];
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-        if(err) return res.status(403).json({msg : "Forbidden"});
+        if (err){
+            console.log(err);
+            return res.status(403).json({ msg: `Forbidden: ${err.message}` });
+        } 
+        console.log(decoded);
         req.user = decoded;
         next();
     });

@@ -6,8 +6,6 @@ import AppErrors from "../core/error.js";
 import dotenv from "dotenv";
 dotenv.config();
 
-const bcryptRounds = 10;
-
 const generateToken = (user) => {
     const accessToken = jwt.sign(
         {id: user._id, username: user.username},
@@ -27,7 +25,6 @@ const generateToken = (user) => {
 export const register = async (req,res) => {
     try {
         const { email, password, username } = req.body;
-        console.log(email, password, username); 
         const existing = await User.findOne({ email });
         if (existing) return res.status(400).json({ msg: "User already exists" });
         const bcryptRounds = 10; 
@@ -37,7 +34,7 @@ export const register = async (req,res) => {
             password: hashedPassword,
             username
         });
-        const { accessToken, refreshToken } = generateToken({ id: newUser._id, email: newUser.email });
+        const { accessToken, refreshToken } = generateToken(newUser);
         res.status(201).json({
             msg: "User registered",
             id: newUser._id,
@@ -48,7 +45,6 @@ export const register = async (req,res) => {
             accessToken: accessToken,
             refreshToken: refreshToken,
         });
-
     } catch (err) {
         AppErrors.handleServerError(err, res);
     }

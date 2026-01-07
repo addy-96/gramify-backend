@@ -5,11 +5,11 @@ const fieldNotProvidedMessage = "Invalid request, all fileds not provided";
 
 export const getUserProfile = async (req,res) => {
      try{
-      
-      const {id} = req.body;
-      if(!id) return res.status(400).end("UserId not provided");
 
-      const userDetails = await user.findById({"_id":id});
+      const {id} = req.user;
+      if(!id) return res.status(400).json({msg: "UserId not provided"});
+
+      const userDetails = await user.findById({"_id":id},{password:0});
       if(!userDetails) return res.status(404).json("User not found");
 
       return res.status(200).json({msg: "User details fetch success", userDetails: userDetails});
@@ -22,7 +22,7 @@ export const getUserProfile = async (req,res) => {
 
 export const editUserProfile = async (req,res)=>{
     try{
-        const {id, username,fullname,phone,dob} = req.body;
+        const {id,username,fullname,phone,dob} = req.body;
         
         if(!id || !username || !fullname || !phone || !dob) {
           return AppErrors.handleClientError(400,fieldNotProvidedMessage,res);
@@ -46,7 +46,7 @@ export const editUserProfile = async (req,res)=>{
     } 
 }
 
- export const updateUserBio = async (req,res) => {
+export const updateUserBio = async (req,res) => {
     try{
         const {id, bio} = req.body;
 
@@ -65,72 +65,22 @@ export const editUserProfile = async (req,res)=>{
     }catch(err){
          AppErrors.handleServerError(err,res);
     }
- }   
+}   
 
 export const followUser = async (req, res) => {
   try {
-    const { followerId, followingId } = req.body;
 
-    if (!followerId || !followingId)
-      return AppErrors.handleClientError(400, fieldNotProvidedMessage, res);
-
-    if (followerId === followingId)
-      return AppErrors.handleClientError(400, "You cannot follow yourself", res);
-
-    const [followerUser, followingUser] = await Promise.all([
-      user.findById(followerId),
-      user.findById(followingId),
-    ]);
-
-    if (!followerUser || !followingUser)
-      return AppErrors.handleClientError(404, "User not found", res);
-
-    if (followerUser.following.includes(followingId))
-      return AppErrors.handleClientError(400, "Already following user", res);
-
-    await Promise.all([
-      user.findByIdAndUpdate(
-        followerId,
-        { $addToSet: { following: followingId } }
-      ),
-      user.findByIdAndUpdate(
-        followingId,
-        { $addToSet: { followers: followerId } }
-      ),
-    ]);
-
-    return res.status(200).json({ msg: "Follow success" });
 
   } catch (err) {
     AppErrors.handleServerError(err, res);
   }
 };
 
-
-   export const unfollowUser = async (req,res) => {
+export const unfollowUser = async (req,res) => {
     try{
-       const {followingId,followerId} = req.body;
-    
-       if (!followerId || !followingId)
-        return AppErrors.handleClientError(400, fieldNotProvidedMessage, res);
-
-       if(followingId==followerId)
-        return AppErrors.handleClientError(400,"You can not follow youself", res);
-
-       const [followerUser,followingUser] =  Promise.all([
-            user.findById(followerId),
-            user.findById(followingId),
-       ]);
-
-
-        if (!followerUser || !followingUser)
-        return AppErrors.handleClientError(404, "User not found", res);
-
-        if(!followingUser.contains(followingId)) return AppErrors.handleClientError(400,"Invalid unfollow request",res);
-  
-        // to unfollow here      
+ 
         
     }catch(err){
         AppErrors.handleServerError(err,res);
     }
-  }  
+}  
