@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
  accessToken: {type: String},
  refreshToken: {type: String},
  phone: {type: String},
- profile:{
+ profile: {
     fullname: {type:String},
     bio: {type:String},
     dob: {type: String},

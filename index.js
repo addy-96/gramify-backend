@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import {connectDb} from './config/db.js';
 import authRouter from './routes/auth_routes.js';
 import userRouter from './routes/user_routes.js';
-import {verifyJWT} from './middlewares/auth_middleware.js'
+import {verifyJWT} from './middlewares/verifyJWT.js'
 import {requestLogger} from './middlewares/request_logger.js'
 
 dotenv.config();

@@ -1,7 +1,6 @@
 import jwt from "jsonwebtoken";
 
 export const verifyJWT = (req, res, next) => {
-
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -14,7 +13,6 @@ export const verifyJWT = (req, res, next) => {
             console.log(err);
             return res.status(403).json({ msg: `Forbidden: ${err.message}` });
         } 
-        console.log(decoded);
         req.user = decoded;
         next();
     });
