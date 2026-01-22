@@ -35,6 +35,9 @@ export const register = async (req,res) => {
             username
         });
         const { accessToken, refreshToken } = generateToken(newUser);
+        await User.findByIdAndUpdate( newUser._id, {
+            refreshToken
+        });
         res.status(201).json({
             msg: "User registered",
             id: newUser._id,
@@ -77,8 +80,7 @@ export const refresh = async (req,res) => {
     try{
         const authHeader = req.get('Authorization');
         
-        if(!authHeader || !authHeader.startsWith('Bearer '))
-            return res.status(401).json({msg: "No refresh token provided"});
+        if(!authHeader || !authHeader.startsWith('Bearer ')) return res.status(401).json({msg: "No refresh token provided"});
 
         const refreshToken = authHeader.split(' ')[1];
         
