@@ -19,13 +19,7 @@ app.use(requestLogger);
 
 app.use("/auth", authRouter);
 app.use("/user", verifyJWT, userRouter);
-app.use("post",verifyJWT, postRouter);
-
-
-
-
-
-
+app.use("/post",verifyJWT, postRouter);
 
 app.get("/test",(_,res)=>{
 res.send("Server running fine!");

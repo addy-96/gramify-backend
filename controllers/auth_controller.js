@@ -38,7 +38,7 @@ export const register = async (req,res) => {
         await User.findByIdAndUpdate( newUser._id, {
             refreshToken
         });
-        res.status(201).json({
+       return res.status(201).json({
             msg: "User registered",
             id: newUser._id,
             email: newUser.email,
@@ -88,7 +88,7 @@ export const refresh = async (req,res) => {
 
         if(!user) return res.status(403).json({msg: "Invalid refresh token, try loggin in."});
 
-         jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
+        jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
          if (err || user._id.toString() !== decoded.id)
                 return res.status(403).json({ msg: "Token verification failed" });
 
@@ -96,9 +96,9 @@ export const refresh = async (req,res) => {
                 { id: user._id, username: user.username },
                 process.env.ACCESS_TOKEN_SECRET,
                 { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
-    );
-    res.status(200).json({ accessToken: accessToken, refreshToken: refreshToken });
-    });
+            );
+            res.status(200).json({ accessToken: accessToken, refreshToken: refreshToken });
+        });
     }catch(err){
         AppErrors.handleServerError(err,res);
     }
