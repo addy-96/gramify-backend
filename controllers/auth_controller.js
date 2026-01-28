@@ -68,8 +68,16 @@ export const login = async (req,res) => {
         user.refreshToken = refreshToken;
         await user.save();
         return res.status(200).json({
-            accessToken: accessToken,
-            refreshToken: refreshToken
+            msg: "Login successful",
+            data: {
+                id: user._id,
+                email: user.email,
+                username: user.username,
+                followers: user.followers.length,
+                following: user.following.length,
+                accessToken: accessToken,
+                refreshToken: refreshToken,
+            },
         });
     }catch(err){
         AppErrors.handleServerError(err,res);

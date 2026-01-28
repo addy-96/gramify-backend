@@ -12,7 +12,7 @@ export const getProfile = async (req,res) => {
       const userDetails = await User.findById({"_id":id},{password:0});
       if(!userDetails) return res.status(404).json("User not found");
 
-      return res.status(200).json({msg: "User details fetch success", userDetails: userDetails});
+      return res.status(200).json({msg: "User details fetch success", data: userDetails});
 
      }catch(err){
         console.error(err);
