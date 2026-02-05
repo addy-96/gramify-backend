@@ -3,7 +3,7 @@ import AppErrors from "../core/error.js";
 
 const fieldNotProvidedMessage = "Invalid request, all fileds not provided";
 
-export const getProfile = async (req,res) => {
+export const getUser = async (req,res) => {
      try{
 
       const {id} = req.user;
@@ -20,24 +20,24 @@ export const getProfile = async (req,res) => {
      } 
 }
 
-export const editProfile = async (req,res)=>{
+export const editUser = async (req,res)=>{
     try{
-        const {id,username,fullname,phone,dob} = req.body;
-        
-        if(!id || !username || !fullname || !phone || !dob) {
+        const {username,fullname,phone,dob} = req.body;
+        const {id} = req.user;
+        if(!username || !fullname || !phone || !dob) {
           return AppErrors.handleClientError(400,fieldNotProvidedMessage,res);
         }
-    
+        console.log(id);
         const updatedUser =  await User.findByIdAndUpdate(id,{
             username:username,
             phone:phone,
             dob:dob,
-            "profile.fullanme": fullname,
+            "profile.fullname": fullname,
         },{
             new:true
         });
 
-        if(!updatedUser) return res.status(404).json("User not found");
+        if(!updatedUser) return res.status(404).json({msg:"User not found"});
 
         return res.status(201).json({msg: "Profile edited",data: updatedUser});
 
@@ -48,9 +48,10 @@ export const editProfile = async (req,res)=>{
 
 export const updateBio = async (req,res) => {
     try{
-        const {id, bio} = req.body;
+        const {bio} = req.body;
+        const {id} = req.user;
 
-        if(!id ||!bio) {
+        if(!bio) {
          return AppErrors.handleClientError(400,fieldNotProvidedMessage,res);
         }  
 
@@ -58,7 +59,7 @@ export const updateBio = async (req,res) => {
             "profile.bio" : bio,
         });
         
-        if(!updateBio) return  res.status(404).json("User not found");
+        if(!updateBio) return  res.status(404).json({msg: "User not found"});
 
         return res.status(201).json({msg: "Success"});
         
