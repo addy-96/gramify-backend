@@ -4,7 +4,7 @@ const commentReplySchema = mongoose.Schema({
     replyto: {type: Schema.Types.ObjectId, required: true},
     replier: {type: Schema.Types.ObjectId, required: true},
     reply: {type: String, required: true},
-    cretedAt: {type: Schema.Types.Date,default: true},
+    cretedAt: {type: Schema.Types.Date,default: Date.now},
 });
 
 export default mongoose.model('CommentReply',commentReplySchema);

@@ -22,9 +22,14 @@ export const createPost = async (req,res) => {
 export const editPost = async (req,res) => {
   try{
     const {postId,postCaption} = req.body;
+    const {id} = req.user;
     if(!postId || !postCaption) return AppErrors.handleClientError(400,"Parameters not provided",res);
-    const post = Post.findById(postId);
-    if(!post) return AppErrors.handleClientError(404,"Post not found");
+    
+    const post = await Post.findById(postId);
+    if (!post) {
+      return AppErrors.handleClientError(404, "Post not found", res);
+    }
+
     await Post.findByIdAndUpdate(postId,{
      postCaption: postCaption,
      isEdited: true,
@@ -48,18 +53,27 @@ export const deletePost = async (req,res) => {
     }
 }
 
-export const likeUnlikePost = async (req,res) => {
-  try{
-    const {postId} = req.body;
-    const user = req.user;
-    if(!postId) return AppErrors.handleClientError(400,"Parameters not provided",res);
+export const likeUnlikePost = async (req, res) => {
+  try {
+    const { postId } = req.body;
+    const { id } = req.user;
+
+    if (!postId) return AppErrors.handleClientError(400, "Parameters not provided", res);
+
     const post = await Post.findById(postId);
-    console.log(post);
-    return res.status(200).json({msg: 'Post Liked'});
-  }catch(err){
-    return AppErrors.handleServerError(err,res);
+    if (!post) return AppErrors.handleClientError(404, "Post not found", res);
+
+    if (post.likedBy.includes(id)) {
+      await Post.findByIdAndUpdate(postId, { $pull: { likedBy: id } });
+      return res.status(200).json({ msg: "Post unliked" });
+    } else {
+      await Post.findByIdAndUpdate(postId, { $addToSet: { likedBy: id } });
+      return res.status(200).json({ msg: "Post liked" });
+    }
+  } catch (err) {
+    return AppErrors.handleServerError(err, res);
   }
-}
+};
 
 export const commentOnPost = async (req,res) => {
     try{
@@ -96,7 +110,7 @@ export const replyToComment = async (req,res) => {
       if(!comment) return AppErrors.handleClientError(404,"Comment not found",res);
 
       await CommentReply.create({
-        replyTo: commentId,
+        replyto: commentId,
         replier: req.user.id,
         reply: reply,
       });
@@ -114,6 +128,9 @@ export const deleteComment = async (req,res) => {
     const comment = await Comment.findById(commentId);
 
     if(!comment) return AppErrors.handleClientError(404,"Comment not found",res);
+
+    const {id} = req.user;
+    if(comment.commentBy!=id) return AppErrors.handleClientError(401, "Unauthorized", res);
 
     await Comment.findByIdAndDelete(commentId);
 
