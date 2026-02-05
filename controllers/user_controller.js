@@ -39,7 +39,7 @@ export const editProfile = async (req,res)=>{
 
         if(!updatedUser) return res.status(404).json("User not found");
 
-        return res.status(201).json(updatedUser);
+        return res.status(201).json({msg: "Profile edited",data: updatedUser});
 
     }catch(err){
        AppErrors.handleServerError(err,res);
@@ -60,7 +60,7 @@ export const updateBio = async (req,res) => {
         
         if(!updateBio) return  res.status(404).json("User not found");
 
-        return res.status(201).json("Bio updated");
+        return res.status(201).json({msg: "Success"});
         
     }catch(err){
          AppErrors.handleServerError(err,res);

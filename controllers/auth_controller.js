@@ -40,13 +40,10 @@ export const register = async (req,res) => {
         });
        return res.status(201).json({
             msg: "User registered",
-            id: newUser._id,
-            email: newUser.email,
-            username: username,
-            followers: newUser.followers.length,
-            following: newUser.following.length,
-            accessToken: accessToken,
-            refreshToken: refreshToken,
+            data: {
+                accessToken: accessToken,
+                refreshToken: refreshToken,
+            }
         });
     } catch (err) {
         AppErrors.handleServerError(err, res);
@@ -68,13 +65,8 @@ export const login = async (req,res) => {
         user.refreshToken = refreshToken;
         await user.save();
         return res.status(200).json({
-            msg: "Login successful",
+            msg: "Success",
             data: {
-                id: user._id,
-                email: user.email,
-                username: user.username,
-                followers: user.followers.length,
-                following: user.following.length,
                 accessToken: accessToken,
                 refreshToken: refreshToken,
             },
@@ -105,7 +97,7 @@ export const refresh = async (req,res) => {
                 process.env.ACCESS_TOKEN_SECRET,
                 { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
             );
-            res.status(200).json({ accessToken: accessToken, refreshToken: refreshToken });
+            res.status(200).json({msg: 'Success',data: { accessToken: accessToken, refreshToken: refreshToken }});
         });
     }catch(err){
         AppErrors.handleServerError(err,res);

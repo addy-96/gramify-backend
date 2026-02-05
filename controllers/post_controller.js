@@ -1,11 +1,12 @@
 import Post from "../models/post.js";
 import AppErrors from "../core/error.js";
+import Comment from "../models/comment.js";
+import CommentReply from "../models/comment_reply.js";
 
 export const createPost = async (req,res) => {
     try{
       const {postCaption,postImageUrl} = req.body;
       const user = req.user;
-      console.log(user);
       if(!postCaption || !postImageUrl) return AppErrors.handleClientError(400,"Parameters not provided",res);
       await Post.insertOne({
         uploadedBy: user.id,
@@ -30,7 +31,7 @@ export const editPost = async (req,res) => {
     });
     return res.status(201).json({msg: "Post edited"});
   }catch(err){
-     return AppErrors.handleServerError(err,res);
+    return AppErrors.handleServerError(err,res);
   }
 }
 
@@ -61,19 +62,68 @@ export const likeUnlikePost = async (req,res) => {
 }
 
 export const commentOnPost = async (req,res) => {
-    
+    try{
+      const {comment,postId} = req.body;
+      if(!comment || !postId) return AppErrors.handleClientError(400,"Parameters not provided",res);
+
+      const post = await Post.findById(postId);
+      if(!post) return AppErrors.handleClientError(404,"Post not found",res);
+      
+      const createdComment = await Comment.create({
+        comment,
+        commentBy: req.user.id,
+        });
+
+      await Post.findByIdAndUpdate(
+        postId,
+        { $addToSet: { comments: createdComment._id } }, 
+      );
+      
+      return res.status(201).json({
+        msg: "Success"
+      });
+    }catch(err){
+      return AppErrors.handleServerError(err,res);
+    }
 }
 
 export const replyToComment = async (req,res) => {
+    try{
+      const {commentId, reply} = req.body;
+      if(!commentId||!reply) return AppErrors.handleClientError(400,"Parameters not provided",res);
 
-}
+      const comment = Comment.findById(commentId);
+      if(!comment) return AppErrors.handleClientError(404,"Comment not found",res);
 
-export const editComment = async (req,res) => {
-    
+      await CommentReply.create({
+        replyTo: commentId,
+        replier: req.user.id,
+        reply: reply,
+      });
+      return res.status(200).json({msg: "Success"});
+    }catch(err){
+      return AppErrors.handleServerError(err,res);
+    }
 }
 
 export const deleteComment = async (req,res) => {
+  try{
+    const {commentId} = req.body;
+    if(!commentId) return AppErrors.handleClientError(400,"Parameters not provided.",res);
 
+    const comment = await Comment.findById(commentId);
+
+    if(!comment) return AppErrors.handleClientError(404,"Comment not found",res);
+
+    await Comment.findByIdAndDelete(commentId);
+
+    await CommentReply.deleteMany({ replyto: commentId });
+
+    return res.status(200).json({msg: "Success"});
+
+  }catch(err){
+     return AppErrors.handleServerError(err,res);
+  }
 }
 
 
