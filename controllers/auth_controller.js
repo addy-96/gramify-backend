@@ -46,7 +46,7 @@ export const register = async (req,res) => {
             }
         });
     } catch (err) {
-        AppErrors.handleServerError(err, res);
+       return AppErrors.handleServerError(err, res);
     }
 };
 
@@ -72,7 +72,7 @@ export const login = async (req,res) => {
             },
         });
     }catch(err){
-        AppErrors.handleServerError(err,res);
+       return AppErrors.handleServerError(err,res);
     }
 };
 
@@ -100,6 +100,17 @@ export const refresh = async (req,res) => {
             res.status(200).json({msg: 'Success',data: { accessToken: accessToken, refreshToken: refreshToken }});
         });
     }catch(err){
-        AppErrors.handleServerError(err,res);
+       return AppErrors.handleServerError(err,res);
+    }
+}
+
+export const checkUsernameAvailability = async (req,res) => {
+    try{
+        const {typedUseranme} = req.body;
+        const user = await User.findOne({username: typedUseranme});
+        if(user) return res.status(409).json({msg: "Unavailble"});
+        return res.status(200).json({msg: "Available"});
+    }catch(err){
+        return AppErrors.handleServerError(err,res);
     }
 }

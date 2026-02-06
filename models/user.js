@@ -10,7 +10,8 @@ const userSchema = new mongoose.Schema({
     fullname: {type:String},
     bio: {type:String},
     dob: {type: String},
-    gender: {type: String},
+    pronouns: {type: String,enum: ["he/him", "she/her", "they/them"],},
+    gender: {type: String,enum:["Male","Female","Other"]},
     avatarUrl: {type: String},
     location: {type:String}
  },

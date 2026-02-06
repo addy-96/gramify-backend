@@ -15,8 +15,7 @@ export const getUser = async (req,res) => {
       return res.status(200).json({msg: "User details fetch success", data: userDetails});
 
      }catch(err){
-        console.error(err);
-        res.status(500).json({ msg: "Server error" });
+        return AppErrors.handleServerError(err,res);
      } 
 }
 
@@ -42,7 +41,7 @@ export const editUser = async (req,res)=>{
         return res.status(201).json({msg: "Profile edited",data: updatedUser});
 
     }catch(err){
-       AppErrors.handleServerError(err,res);
+        return AppErrors.handleServerError(err,res);
     } 
 }
 
@@ -64,7 +63,7 @@ export const updateBio = async (req,res) => {
         return res.status(201).json({msg: "Success"});
         
     }catch(err){
-         AppErrors.handleServerError(err,res);
+       return AppErrors.handleServerError(err,res);
     }
 }   
 
@@ -93,7 +92,7 @@ export const follow = async (req, res) => {
     );
     return res.status(200).json({msg: 'User followed'});
   } catch (err) {
-    AppErrors.handleServerError(err, res);
+    return AppErrors.handleServerError(err, res);
   }
 };
 
@@ -115,7 +114,20 @@ export const unfollow = async (req,res) => {
         return res.status(200).json({msg: 'User unfollowed'});
 
     }catch(err){
-        AppErrors.handleServerError(res);
+       return AppErrors.handleServerError(res);
     }
 }
 
+export const checkForFilledProfile = async (req,res) => {
+    try{
+        const {id} = req.user;
+        const user = await User.findById(id);
+        if(!user) return res.status(404).json({mgs:"User not found!"});
+        
+        if(!user.profile) return res.status(409).json({msg: "Profile Unavailable"});
+
+        return res.status(200).json({msg: "Profile found"});
+    }catch(err){
+        return AppErrors.handleServerError(res);
+    }
+}
